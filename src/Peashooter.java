@@ -2,7 +2,7 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 
 /**
- * Created by Armin on 6/25/2016.
+ * Created by Soup
  */
 public class Peashooter extends Plant {
 

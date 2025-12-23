@@ -1,7 +1,7 @@
 import java.awt.*;
 
 /**
- * Created by Armin on 6/28/2016.
+ * Created by Soup
  */
 public class FreezePea extends Pea {
 
@@ -12,27 +12,31 @@ public class FreezePea extends Pea {
     @Override
     public void advance() {
         Rectangle pRect = new Rectangle(getPosX(), 130 + getMyLane() * 120, 28, 28);
-        for (int i = 0; i < gp.getLaneZombies().get(getMyLane()).size(); i++) {
-            Zombie z = gp.getLaneZombies().get(getMyLane()).get(i);
+        // Use iterator to safely remove zombies while iterating
+        java.util.Iterator<Zombie> zombieIterator = gp.getLaneZombies().get(getMyLane()).iterator();
+        while (zombieIterator.hasNext()) {
+            Zombie z = zombieIterator.next();
             Rectangle zRect = new Rectangle(z.getPosX(), 109 + getMyLane() * 120, 400, 120);
             if (pRect.intersects(zRect)) {
+                int oldHealth = z.getHealth();
                 z.setHealth(z.getHealth() - 300);
                 z.slow();
-                boolean exit = false;
-                if (z.getHealth() < 0) {
+                System.out.println("FreezePea hit zombie! Health: " + oldHealth + " -> " + z.getHealth());
+                if (z.getHealth() <= 0) {
                     System.out.println("ZOMBIE DIE");
                     GamePanel.setProgress(10);
-                    gp.getLaneZombies().get(getMyLane()).remove(i);
-                    exit = true;
+                    zombieIterator.remove();
                 }
                 gp.getLanePeas().get(getMyLane()).remove(this);
-                if (exit) break;
+                return; // Exit after hitting one zombie
             }
         }
         /*if(posX > 2000){
             gp.lanePeas.get(myLane).remove(this);
         }*/
-        setPosX(getPosX() - 15);
+        // Move forward smoothly
+        int currentPos = getPosX();
+        setPosX(currentPos + 15);
     }
 
 }

@@ -8,7 +8,7 @@ import java.awt.*;
  */
 
 /**
- * @author Vaibhav Sikarwar
+ * @author Soup
  */
 public class Menu extends JPanel {
 

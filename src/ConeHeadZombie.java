@@ -1,5 +1,5 @@
 /**
- * Created by Armin on 6/29/2016.
+ * Created by Soup
  */
 public class ConeHeadZombie extends Zombie {
 

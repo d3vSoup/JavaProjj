@@ -5,7 +5,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
 /**
- * Created by Armin on 6/25/2016.
+ * Created by Soup
  */
 public class Collider extends JPanel implements MouseListener {
 
@@ -36,6 +36,10 @@ public class Collider extends JPanel implements MouseListener {
 
     public void setAction(ActionListener al) {
         this.al = al;
+    }
+
+    public ActionListener getAction() {
+        return al;
     }
 
 

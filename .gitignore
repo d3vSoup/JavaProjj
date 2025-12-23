@@ -1,2 +1,11 @@
-/build/
-/dist/
+# IDE files
+.idea/
+.vscode/
+*.iml
+
+# Compiled output
+bin/
+
+# OS files
+.DS_Store
+Thumbs.db

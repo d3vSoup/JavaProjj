@@ -8,13 +8,21 @@ import java.io.*;
 import java.util.logging.Logger;
 
 /**
- * @author Vaibhav Singh Sikarwar
+ * @author Soup
  */
 public class LevelData {
 
     public static String LEVEL_NUMBER = "1";
-    public static String[][] LEVEL_CONTENT = {{"NormalZombie"}, {"NormalZombie", "ConeHeadZombie"}};
-    public static int[][][] LEVEL_VALUE = {{{0, 99}}, {{0, 49}, {50, 99}}};
+    public static String[][] LEVEL_CONTENT = {
+        {"NormalZombie"},  // Level 1: Only NormalZombie
+        {"NormalZombie", "ConeHeadZombie"},  // Level 2: Both types
+        {"NormalZombie", "ConeHeadZombie"}  // Level 3: Both types
+    };
+    public static int[][][] LEVEL_VALUE = {
+        {{0, 99}},  // Level 1: 100% NormalZombie
+        {{0, 49}, {50, 99}},  // Level 2: 50% Normal, 50% ConeHead
+        {{0, 49}, {50, 99}}  // Level 3: 50% Normal, 50% ConeHead
+    };
 
     public LevelData() {
         try {
@@ -28,6 +36,7 @@ public class LevelData {
             } else {
                 BufferedReader br = new BufferedReader(new FileReader(f));
                 LEVEL_NUMBER = br.readLine();
+                br.close();
             }
         } catch (Exception ex) {
 

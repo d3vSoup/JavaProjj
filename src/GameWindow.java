@@ -2,7 +2,7 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 
 /**
- * Created by Armin on 6/25/2016.
+ * Created by Soup
  */
 public class GameWindow extends JFrame {
 
@@ -14,6 +14,7 @@ public class GameWindow extends JFrame {
     }
 
     //PlantType activePlantingBrush = PlantType.None;
+    public static GamePanel currentGamePanel = null;
 
     public GameWindow() {
         setSize(1012, 785);
@@ -25,6 +26,7 @@ public class GameWindow extends JFrame {
         sun.setSize(60, 20);
 
         GamePanel gp = new GamePanel(sun);
+        currentGamePanel = gp;
         gp.setLocation(0, 0);
         getLayeredPane().add(gp, new Integer(0));
 

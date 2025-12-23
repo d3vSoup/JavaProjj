@@ -1,9 +1,10 @@
 /**
- * Created by Armin on 6/25/2016.
+ * Created by Soup
  */
 public abstract class Plant {
 
     private int health = 200;
+    private boolean beingEaten = false;
 
     private int x;
     private int y;
@@ -50,5 +51,13 @@ public abstract class Plant {
 
     public void setGp(GamePanel gp) {
         this.gp = gp;
+    }
+
+    public boolean isBeingEaten() {
+        return beingEaten;
+    }
+
+    public void setBeingEaten(boolean beingEaten) {
+        this.beingEaten = beingEaten;
     }
 }
