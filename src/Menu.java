@@ -36,7 +36,7 @@ public class Menu extends JPanel {
 
     }
 
-    @SuppressWarnings("unchecked")
+    //@SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
@@ -81,7 +81,6 @@ public class Menu extends JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jPanel1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel1MouseClicked
-        // TODO add your handling code here:
         GameWindow.begin();
     }//GEN-LAST:event_jPanel1MouseClicked
 

@@ -123,25 +123,31 @@ public class GamePanel extends JLayeredPane implements MouseMotionListener, Mous
         advancerTimer = new Timer(60, (ActionEvent e) -> advance());
         advancerTimer.start();
 
-        // Faster sun generation (every 3 seconds instead of 5)
-        sunProducer = new Timer(3000, (ActionEvent e) -> {
+        // Sun generation rate increases with level
+        int levelForSun = Integer.parseInt(LevelData.LEVEL_NUMBER);
+        int sunInterval = 3000; // Default 3 seconds for level 1
+        if (levelForSun == 2) {
+            sunInterval = 1500; // 1.5 seconds for level 2
+        } else if (levelForSun >= 3) {
+            sunInterval = 1000; // 1 second for level 3+
+        }
+        
+        sunProducer = new Timer(sunInterval, (ActionEvent e) -> {
             Random rnd = new Random();
             Sun sta = new Sun(this, rnd.nextInt(800) + 100, 0, rnd.nextInt(300) + 200);
             activeSuns.add(sta);
-            add(sta, new Integer(1));
+            add(sta, Integer.valueOf(1));
         });
         sunProducer.start();
 
         // Spawn rate based on level (faster spawns in higher levels)
-        // Read level from file when panel is created
-        LevelData levelDataInit = new LevelData();
-        int level = Integer.parseInt(levelDataInit.LEVEL_NUMBER);
+        int level = Integer.parseInt(LevelData.LEVEL_NUMBER);
         System.out.println("Zombie spawner initialized for level: " + level);
-        int spawnInterval = 7000; // Default 7 seconds
+        int spawnInterval = 3000; // Default 3 seconds for level 1 (was 7000)
         if (level == 2) {
-            spawnInterval = 5000; // 5 seconds for level 2
+            spawnInterval = 2000; // 2 seconds for level 2
         } else if (level >= 3) {
-            spawnInterval = 3500; // 3.5 seconds for level 3+
+            spawnInterval = 1500; // 1.5 seconds for level 3+
         }
         
         zombieProducer = new Timer(spawnInterval, (ActionEvent e) -> {
@@ -158,6 +164,7 @@ public class GamePanel extends JLayeredPane implements MouseMotionListener, Mous
             int t = rnd.nextInt(100);
             Zombie z = null;
             for (int i = 0; i < LevelValue.length; i++) {
+                System.out.println("Checking zombie type: " + Level[i] + " for t=" + t + " in range [" + LevelValue[i][0] + ", " + LevelValue[i][1] + "]");
                 if (t >= LevelValue[i][0] && t <= LevelValue[i][1]) {
                     z = Zombie.getZombie(Level[i], GamePanel.this, l);
                     System.out.println("Spawning: " + Level[i] + " at lane " + l);
@@ -165,6 +172,12 @@ public class GamePanel extends JLayeredPane implements MouseMotionListener, Mous
                 }
             }
             if (z != null) {
+                // Ensure zombie starts visible (panel width is 1000, posX=1000 is off-screen)
+                try {
+                    z.setPosX(950); // place slightly inside right edge so it is visible
+                } catch (Exception ex) {
+                    // ignore
+                }
                 laneZombies.get(l).add(z);
             } else {
                 System.out.println("Warning: No zombie spawned! Level: " + currentLevel + ", t: " + t);
@@ -188,7 +201,7 @@ public class GamePanel extends JLayeredPane implements MouseMotionListener, Mous
                 Pea p = lanePeas.get(i).get(j);
                 p.advance();
             }
-            
+
             // Remove dead zombies after peas have processed
             laneZombies.get(i).removeIf(z -> z.getHealth() <= 0);
             
@@ -277,6 +290,20 @@ public class GamePanel extends JLayeredPane implements MouseMotionListener, Mous
             }
 
         }
+
+    // Draw progress (e.g., "Progress: 30 / 150") below the sun indicator
+    Graphics2D g2 = (Graphics2D) g;
+    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+    int levelForDisplay = 1;
+    try { levelForDisplay = Integer.parseInt(LevelData.LEVEL_NUMBER); } catch (Exception ex) { levelForDisplay = 1; }
+    int thresholdForDisplay = 150 * levelForDisplay;
+    g2.setFont(new Font("Arial", Font.BOLD, 20));
+    g2.setColor(Color.WHITE);
+    // shadow
+    g2.setColor(new Color(0,0,0,160));
+    g2.drawString("Progress: " + progress + " / " + thresholdForDisplay, 30, 50);
+    g2.setColor(Color.WHITE);
+    g2.drawString("Progress: " + progress + " / " + thresholdForDisplay, 28, 48);
 
         // Draw floating overlay text for game over/won
         if (overlayText != null) {
@@ -390,10 +417,14 @@ public class GamePanel extends JLayeredPane implements MouseMotionListener, Mous
             if (x >= buttonX && x < buttonX + 150 && y >= buttonY && y < buttonY + 50) {
                 // OK button clicked - quit game
                 System.out.println("OK button clicked - quitting game");
+                overlayText = null;
+                showOverlayOK = false;
+                repaint();
                 System.exit(0);
             }
+            // Return so overlay click doesn't trigger plant placement
+            return;
         }
-        
         // Handle drag and drop placement
         if (activePlantingBrush != GameWindow.PlantType.None && overlayText == null) {
             int x = e.getX();
@@ -435,53 +466,50 @@ public class GamePanel extends JLayeredPane implements MouseMotionListener, Mous
     }
 
     static int progress = 0;
+    private static boolean levelTransitioning = false;
 
     public static void setProgress(int num) {
+        if (levelTransitioning) {
+            return;
+        }
         progress = progress + num;
-        System.out.println("Progress: " + progress + "/150");
-        if (progress >= 150) {
-            // Read current level from static variable (more reliable than file)
+        int level = 1;
+        try { level = Integer.parseInt(LevelData.LEVEL_NUMBER); } catch (Exception ex) { level = 1; }
+        int threshold = 150 * level;
+        System.out.println("Progress: " + progress + "/" + threshold);
+        if (progress >= threshold) {
             String currentLevel = LevelData.LEVEL_NUMBER;
             System.out.println("Level completion triggered. Current level: " + currentLevel);
-            
+            levelTransitioning = true;
             if ("1".equals(currentLevel)) {
-                JOptionPane.showMessageDialog(null, "LEVEL 1 CROSSED!" + '\n' + "Level 2 starting now...");
+                JOptionPane.showMessageDialog(null, "LEVEL 1 CROSSED!\nLevel 2 starting now...");
                 GameWindow.gw.dispose();
-                // Update level BEFORE creating new window
                 LevelData.LEVEL_NUMBER = "2";
                 LevelData.write("2");
                 progress = 0;
-                // Small delay to ensure level is written
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                try { Thread.sleep(100); } catch (InterruptedException e) { e.printStackTrace(); }
                 GameWindow.gw = new GameWindow();
+                levelTransitioning = false;
             } else if ("2".equals(currentLevel)) {
-                JOptionPane.showMessageDialog(null, "LEVEL 2 CROSSED!" + '\n' + "Level 3 starting now...");
+                JOptionPane.showMessageDialog(null, "LEVEL 2 CROSSED!\nLevel 3 starting now...");
                 GameWindow.gw.dispose();
-                // Update level BEFORE creating new window
                 LevelData.LEVEL_NUMBER = "3";
                 LevelData.write("3");
                 progress = 0;
-                // Small delay to ensure level is written
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                try { Thread.sleep(100); } catch (InterruptedException e) { e.printStackTrace(); }
                 GameWindow.gw = new GameWindow();
+                levelTransitioning = false;
             } else if ("3".equals(currentLevel)) {
-                // Game won - show floating text overlay
+                // Only show GAME WON overlay after all rounds
                 if (GameWindow.currentGamePanel != null) {
                     GameWindow.currentGamePanel.showGameWonOverlay();
                 }
+                levelTransitioning = false;
             } else {
-                // Fallback - shouldn't happen
                 System.out.println("Unexpected level: " + currentLevel);
                 JOptionPane.showMessageDialog(null, "LEVEL " + currentLevel + " COMPLETED!");
                 System.exit(0);
+                levelTransitioning = false;
             }
         }
     }

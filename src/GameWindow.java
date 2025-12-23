@@ -76,6 +76,9 @@ public class GameWindow extends JFrame {
     }
 
     public static void main(String[] args) {
+        // Always start a new game at level 1
+        LevelData.LEVEL_NUMBER = "1";
+        LevelData.write("1");
         gw = new GameWindow(true);
     }
 

@@ -47,7 +47,7 @@ public class Sun extends JPanel implements MouseListener {
             g2d.drawImage(sunImage, 0, 0, null);
             g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
         } else {
-            g.drawImage(sunImage, 0, 0, null);
+        g.drawImage(sunImage, 0, 0, null);
         }
     }
 

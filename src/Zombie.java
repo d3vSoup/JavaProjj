@@ -10,7 +10,9 @@ public class Zombie {
 
     private GamePanel gp;
 
+    // posX is used for rendering/collision (integer), realPosX accumulates fractional movement
     private int posX = 1000;
+    private double realPosX = 1000.0;
     private int myLane;
     private boolean isMoving = true;
 
@@ -22,10 +24,12 @@ public class Zombie {
         if (level == 1) {
             speed = 0.5;  // Level 1: Very slow (normal Plants vs Zombies speed)
         } else if (level == 2) {
-            speed = 1.25;  // Level 2: 1.25x faster
+            speed = 1.0;  // Level 2: Normal speed
         } else if (level >= 3) {
-            speed = 2.0;  // Level 3: 2x speed
+            speed = 1.2;  // Level 3: 1.2x speed
         }
+        // ensure realPosX matches integer posX
+        realPosX = posX;
     }
 
     public void advance() {
@@ -39,23 +43,26 @@ public class Zombie {
                 }
             }
             if (!isCollides) {
+                // Use realPosX to accumulate fractional movement so slow speeds (<1) still move over time
                 if (slowInt > 0) {
                     if (slowInt % 2 == 0) {
-                        posX -= (int)Math.round(speed);  // Round for pixel-perfect movement
+                        realPosX -= speed;
+                        posX = (int)Math.round(realPosX);
                     }
                     slowInt--;
                 } else {
-                    posX -= (int)Math.round(speed);  // Round for pixel-perfect movement
+                    realPosX -= speed;
+                    posX = (int)Math.round(realPosX);
                 }
             } else {
                 // Mark plant as being eaten
                 if (collided.assignedPlant != null) {
                     collided.assignedPlant.setBeingEaten(true);
-                    collided.assignedPlant.setHealth(collided.assignedPlant.getHealth() - 10);
-                    if (collided.assignedPlant.getHealth() < 0) {
-                        collided.removePlant();
-                    }
+                collided.assignedPlant.setHealth(collided.assignedPlant.getHealth() - 10);
+                if (collided.assignedPlant.getHealth() < 0) {
+                    collided.removePlant();
                 }
+            }
             }
             // Only trigger game over if zombie is alive and reaches the left edge
             if (posX < 0 && health > 0) {
@@ -114,6 +121,7 @@ public class Zombie {
 
     public void setPosX(int posX) {
         this.posX = posX;
+        this.realPosX = posX;
     }
 
     public int getMyLane() {

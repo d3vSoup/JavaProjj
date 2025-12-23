@@ -74,8 +74,8 @@ public class PlantCard extends JPanel implements MouseListener, MouseMotionListe
                             if (gpPoint.x >= c.getX() && gpPoint.x < c.getX() + c.getWidth() &&
                                 gpPoint.y >= c.getY() && gpPoint.y < c.getY() + c.getHeight()) {
                                 // First set the active planting brush
-                                if (al != null) {
-                                    al.actionPerformed(new ActionEvent(this, ActionEvent.RESERVED_ID_MAX + 1, ""));
+        if (al != null) {
+            al.actionPerformed(new ActionEvent(this, ActionEvent.RESERVED_ID_MAX + 1, ""));
                                 }
                                 // Then immediately place the plant
                                 ActionListener action = c.getAction();

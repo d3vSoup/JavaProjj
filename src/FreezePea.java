@@ -24,7 +24,8 @@ public class FreezePea extends Pea {
                 System.out.println("FreezePea hit zombie! Health: " + oldHealth + " -> " + z.getHealth());
                 if (z.getHealth() <= 0) {
                     System.out.println("ZOMBIE DIE");
-                    GamePanel.setProgress(10);
+                    // Award smaller progress per kill so rounds last longer
+                    GamePanel.setProgress(5);
                     zombieIterator.remove();
                 }
                 gp.getLanePeas().get(getMyLane()).remove(this);

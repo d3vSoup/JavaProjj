@@ -30,7 +30,8 @@ public class Pea {
                 if (z.getHealth() <= 0) {
                     System.out.println("ZOMBIE DIED");
                     zombieIterator.remove();
-                    GamePanel.setProgress(10);
+                    // Award smaller progress per kill so rounds last longer
+                    GamePanel.setProgress(5);
                 }
                 gp.getLanePeas().get(myLane).remove(this);
                 return; // Exit after hitting one zombie
